@@ -31,6 +31,11 @@ func main() {
 		port = "8080"
 	}
 
+	host := os.Getenv("BIND_ADDR")
+	if host == "" {
+		host = "127.0.0.1"
+	}
+
 	// Infrastructure
 	binaryMgr := system.NewBinaryManager()
 	svcMgr := system.NewSystemdManager()
@@ -45,13 +50,16 @@ func main() {
 	router := rest.NewRouter(handler, apiKey)
 
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%s", port),
-		Handler: router,
+		Addr:         fmt.Sprintf("%s:%s", host, port),
+		Handler:      router,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  120 * time.Second,
 	}
 
 	// Start server in background
 	go func() {
-		slog.Info("starting server", "port", port)
+		slog.Info("starting server", "host", host, "port", port)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			slog.Error("server error", "err", err)
 			os.Exit(1)
@@ -63,7 +71,7 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	slog.Info("shutting down server")
+	slog.Info("shutting down server", "host", host, "port", port)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
