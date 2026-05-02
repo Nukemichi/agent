@@ -4,7 +4,7 @@
 
 ## Ecosystem Role
 
-This repository is the backend component of the [Nukemichi](https://github.com/Nukemichi/nukemichi-android) project.
+This repository is the backend component of the [Nukemichi](https://github.com/Nukemichi/android) project.
 
 - **For Android contributors:** You generally don't need to build this manually. Use the `scripts/ensure-agent-binaries.sh` script in the main repository to sync pre-built and compressed binaries.
 - **For Agent contributors:** Use the provided `Makefile` to build and test your changes across all supported architectures.
